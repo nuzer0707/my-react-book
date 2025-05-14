@@ -2,12 +2,12 @@ import './App.css'
 
 import React, { useState, useEffect } from "react";
 
-const API_URL = 'http://localhost.8080/book'
+const API_URL = 'http://localhost:8080/book';// 後台 API
 
 function App() {
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState([]);// 書籍列表
   const [form, setForm] = useState({ id: null, name: '', price: '', amount: '', pub: false });
-  comst[editing, serEditing] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const fetchBooks = async () => {
     try {
@@ -32,7 +32,7 @@ function App() {
   */
 
   const handleChange = (e) => {
-    const { name, value, typr, checked } = e.target;
+    const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -40,30 +40,29 @@ function App() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault();// 停止預設行為
     try {
-      const method = editing ? PUT : POST;
+      const method = editing ? 'PUT' : 'POST';
       const url = editing ? `${API_URL}/${form.id}` : API_URL;
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': application / json },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      const result = await res.json;
+      const result = await res.json();
       if (res.ok) {
-        await fetchBooks();
+        await fetchBooks();// 重新查詢所有書籍
         setForm({ id: null, name: '', price: '', amount: '', pub: false });
-        setEditing(false);
+        setEditing(false);// 恢復到新增狀態
       } else {
         alert(result.message || '操作失敗');
       }
-
     } catch (err) {
-      console.log('提交錯誤', err);
+      console.error('提交錯誤', err);
     }
   };
 
-
+  // 編輯功能
   const handleEdit = (book) => {
     setForm(book); // 將 book 的資料填入到表單
     setEditing(true); // 啟用編輯模式
@@ -86,57 +85,57 @@ function App() {
   };
 
   return (
-    <>
-      <div>
-        <h2>書籍管理系統(使用 fetch)</h2>
-        <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
-          書名: <input name="name" required value={form.name} onChange={handleChange} /><br />
-          價格: <input name="price" required value={form.price} onChange={handleChange} /><br />
-          數量: <input name="amount" required value={form.amount} onChange={handleChange} /><br />
-          出刊: <input name="pub" type='checkbox' value={form.pub} onChange={handleChange} /><br />
-          <button type="submit">{editing ? '更新' : '新增'}書籍</button>
-          {
-            editing && (
-              <button type='button' onClick={() => {
-                setEditing(false);
-                setForm({ id: null, name: '', price: '', amount: '', pub: false });
-              }}>取消</button>
-            )
-          }
-        </form>
-        <h2>📖 書籍列表</h2>
-        <table border="1" cellPadding="4">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>書名</th>
-              <th>價格</th>
-              <th>數量</th>
-              <th>出刊</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              books.map((book) => (
-                <tr key={book.id}>
-                  <td>{book.id}</td>
-                  <td>{book.name}</td>
-                  <td>{book.price}</td>
-                  <td>{book.amount}</td>
-                  <td>{book.pub ? 'yes' : 'no'}</td>
-                  <td>
-                    <button onClick={() => handleEdit(book)}>編輯</button>
-                    <button onClick={() => handleDelete(book.id)}>刪除</button>
-                  </td>
-                </tr>
-              ))
-            }
 
-          </tbody>
-        </table>
-      </div>
-    </>
+    <div>
+      <h2>書籍管理系統(使用 fetch)</h2>
+      <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+        書名: <input name="name" required value={form.name} onChange={handleChange} /><br />
+        價格: <input name="price" required value={form.price} onChange={handleChange} /><br />
+        數量: <input name="amount" required value={form.amount} onChange={handleChange} /><br />
+        出刊: <input name="pub" type='checkbox' checkbox={form.pub} onChange={handleChange} /><br />
+        <button type="submit">{editing ? '更新' : '新增'}書籍</button>
+        {
+          editing && (
+            <button type='button' onClick={() => {
+              setEditing(false);
+              setForm({ id: null, name: '', price: '', amount: '', pub: false });//表格清空
+            }}>取消</button>
+          )
+        }
+      </form>
+      <h2>📖 書籍列表</h2>
+      <table border="1" cellPadding="4">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>書名</th>
+            <th>價格</th>
+            <th>數量</th>
+            <th>出刊</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            books.map((book) => (
+              <tr key={book.id}>
+                <td>{book.id}</td>
+                <td>{book.name}</td>
+                <td>{book.price}</td>
+                <td>{book.amount}</td>
+                <td>{book.pub ? '是' : '否'}</td>
+                <td>
+                  <button onClick={() => handleEdit(book)}>編輯</button>
+                  <button onClick={() => handleDelete(book.id)}>刪除</button>
+                </td>
+              </tr>
+            ))
+          }
+
+        </tbody>
+      </table>
+    </div>
+
   )
 }
 
