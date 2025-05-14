@@ -1,6 +1,5 @@
 import './App.css'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import React, { useState, useEffect } from "react";
 
 const API_URL = 'http://localhost.8080/book'
@@ -14,6 +13,7 @@ function App() {
     try {
       const res = await fetch(API_URL);
       const result = await res.json();
+      setBooks(result.data || []);
     } catch (error) {
       console.log('讀取書籍錯誤', error);
     }
@@ -64,6 +64,27 @@ function App() {
   };
 
 
+  const handleEdit = (book) => {
+    setForm(book); // 將 book 的資料填入到表單
+    setEditing(true); // 啟用編輯模式
+  };
+
+  // 刪除功能
+  const handleDelete = async (id) => {
+    if (!window.confirm('確定要刪除這本書嗎？')) return;
+    try {
+      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      const result = await res.json();
+      if (res.ok) {
+        fetchBooks();
+      } else {
+        alert(result.message || '刪除失敗');
+      }
+    } catch (err) {
+      console.error('刪除錯誤:', err);
+    }
+  };
+
   return (
     <>
       <div>
@@ -83,7 +104,7 @@ function App() {
             )
           }
         </form>
-        <h2>書籍列表</h2>
+        <h2>📖 書籍列表</h2>
         <table border="1" cellPadding="4">
           <thead>
             <tr>
@@ -96,17 +117,22 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td>
-                <button type='button'>編輯</button>
-                <button type='button'>刪除</button>
-              </td>
-            </tr>
+            {
+              books.map((book) => (
+                <tr key={book.id}>
+                  <td>{book.id}</td>
+                  <td>{book.name}</td>
+                  <td>{book.price}</td>
+                  <td>{book.amount}</td>
+                  <td>{book.pub ? 'yes' : 'no'}</td>
+                  <td>
+                    <button onClick={() => handleEdit(book)}>編輯</button>
+                    <button onClick={() => handleDelete(book.id)}>刪除</button>
+                  </td>
+                </tr>
+              ))
+            }
+
           </tbody>
         </table>
       </div>
